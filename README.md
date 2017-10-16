@@ -98,3 +98,51 @@ if (customer.getOrderSet().size() > 0) {
             customer.add(linkTo(methodOn(CustomerController.class).getAllOrdersForCustomer(customer.getCustomerId())).withRel("allOrders"));
         }
 ```
+
+### Output
+URL: http://localhost:8989/customer/1
+```json
+{
+    "customerId": 1,
+    "customerName": "Avishka",
+    "_links": {
+        "self": {
+            "href": "http://localhost:8989/customer/1"
+        },
+        "allOrders": {
+            "href": "http://localhost:8989/customer/1/orders"
+        },
+        "all": {
+            "href": "http://localhost:8989/customer"
+        }
+    }
+}
+```
+
+URL: http://localhost:8989/customer/1/orders
+```json
+[
+    {
+        "orderId": 1,
+        "price": 1000,
+        "quantity": 10,
+        "customer": {
+            "customerId": 1,
+            "customerName": "Avishka",
+            "links": []
+        },
+        "links": []
+    },
+    {
+        "orderId": 2,
+        "price": 1000,
+        "quantity": 50,
+        "customer": {
+            "customerId": 1,
+            "customerName": "Avishka",
+            "links": []
+        },
+        "links": []
+    }
+]
+```
