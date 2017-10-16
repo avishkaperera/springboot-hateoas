@@ -49,3 +49,52 @@ public class HateoasServiceApplication {
 }
 ```
 
+Extending entity classes with `ResourceSupport` class gives the options to wrap the objects of this class as a resource and add hypermedia links to them
+```java
+public class Customer extends ResourceSupport {}
+```
+
+The controllers will be annotated with `@RestController` annotation to make them return JSON qualified data
+```java
+@RestController
+public class CustomerController {}
+```
+
+### Endpoints
+**Endpoint that returns all customers**
+```java
+public List<Customer> getAllCustomers() {
+    List<Customer> customers = customerRepository.findAll();
+    customers.forEach(c -> {
+        c.add(linkTo(methodOn(CustomerController.class).getOneCustomer(c.getCustomerId())).withSelfRel());
+    });
+    return customers;
+}
+```
+
+This line of code takes one customer resource and adds a hypermedia link to it to retrieve the details of that single customer. It creates a link that calls `getOneCustomer()` method on Customer Controller
+```java
+customers.forEach(c -> {
+        c.add(linkTo(methodOn(CustomerController.class).getOneCustomer(c.getCustomerId())).withSelfRel());
+    });
+```
+
+**Endpoint that returns a single customer**
+```java
+public Customer getOneCustomer(@PathVariable(value = "customerId") Integer customerId) {
+        Customer customer = customerRepository.findOne(customerId);
+        customer.add(linkTo(methodOn(CustomerController.class).getOneCustomer(customer.getCustomerId())).withSelfRel());
+        if (customer.getOrderSet().size() > 0) {
+            customer.add(linkTo(methodOn(CustomerController.class).getAllOrdersForCustomer(customer.getCustomerId())).withRel("allOrders"));
+        }
+        customer.add(linkTo(methodOn(CustomerController.class).getAllCustomers()).withRel("all"));
+        return customer;
+    }
+```
+
+This code snippet checks if the customer has orders and if yes, will add a hypermedia link to retrieve the the orders of that specific customer
+```java
+if (customer.getOrderSet().size() > 0) {
+            customer.add(linkTo(methodOn(CustomerController.class).getAllOrdersForCustomer(customer.getCustomerId())).withRel("allOrders"));
+        }
+```
